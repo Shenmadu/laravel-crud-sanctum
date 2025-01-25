@@ -39,10 +39,18 @@ class PostController extends Controller implements HasMiddleware
      */
     public function store(Request $request)
     {
+        
         $fields = $request->validate([
             'title' => 'required|max:255',
             'body' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate the image
         ]);
+       
+        // Handle the image file if present
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('images', 'public'); // Save to 'storage/app/public/images'
+            $fields['image'] = $imagePath;
+        }
 
         // Create the post with the current user
         $post = $request->user()->Post()->create($fields);
